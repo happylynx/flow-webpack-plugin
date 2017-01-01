@@ -1,7 +1,6 @@
 * add tests
 * add demo project
 * describe minimal demo project: with + without babel
-* add flow types
 * runtime type checking of options
 * add callbacks
 * screenshot of output

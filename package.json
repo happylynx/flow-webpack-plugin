@@ -2,10 +2,12 @@
   "name": "flow-webpack-plugin",
   "version": "0.2.1",
   "description": "Webpack plugin allowing to call `flow` type checker.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "ls-files": "file_name=$(npm pack) && tar -ztf $file_name && rm $file_name",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "premake": "flow",
+    "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types index.js > dist/index.js"
   },
   "keywords": [
     "webpack",
@@ -18,5 +20,9 @@
     "url": "git+https://github.com/happylynx/flow-webpack-plugin.git"
   },
   "author": "happylynx",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "flow-bin": "^0.37.4",
+    "flow-remove-types": "^1.1.2"
+  }
 }
