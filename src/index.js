@@ -8,7 +8,15 @@ declare var require: {
 
 const spawn = require('child_process').spawn
 
-function FlowWebpackPlugin(options) {
+interface Options {
+    failOnError: ?boolean,
+    failOnErrorWatch: ?boolean,
+    printFlowOutput: ?boolean,
+    flowPath: ?string,
+    flowArgs: ?Array<string>
+}
+
+function FlowWebpackPlugin(options: Options) {
     options = options || {}
     applyOptionsDefaults(options)
     this.options = options
