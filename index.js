@@ -57,12 +57,11 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
 }
 
 function getLocalFlowPath() {
-    const flowPackageName = 'flow-bin'
     try {
-        return require.main.require(flowPackageName)
+        return require.main.require('flow-bin')
     } catch (e) {
         try {
-            require(flowPackageName)
+            require('flow-bin')
         } catch (e) {
             const error = new Error('`flow` can\'t be found. Please either install it (`npm install --save-dev flow-bin`) or set `flowPath` option.')
             error.cause = e
