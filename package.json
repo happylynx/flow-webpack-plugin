@@ -4,6 +4,7 @@
   "description": "Webpack plugin allowing to call `flow` type checker.",
   "main": "index.js",
   "scripts": {
+    "ls-files": "file_name=$(npm pack) && tar -ztf $file_name && rm $file_name",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
