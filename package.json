@@ -7,7 +7,8 @@
     "ls-files": "file_name=$(npm pack) && tar -ztf $file_name && rm $file_name",
     "test": "echo \"Error: no test specified\" && exit 1",
     "premake": "flow",
-    "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types index.js > dist/index.js"
+    "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types src/index.js > dist/index.js",
+    "prepublish": "npm run make"
   },
   "keywords": [
     "webpack",
