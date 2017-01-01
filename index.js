@@ -17,7 +17,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
             flowCheck()
                 .then(successful => {
                     if (!successful) {
-                        errorToReport = new Error('Flow validation failed.')
+                        errorToReport = new Error('Flow validation.')
                     }
                     (!successful && failOnError) ? callback(errorToReport) : callback()
                 })
