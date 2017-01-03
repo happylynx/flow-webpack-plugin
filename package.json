@@ -4,7 +4,7 @@
   "description": "Webpack plugin allowing to call `flow` type checker.",
   "main": "dist/index.js",
   "scripts": {
-    "ls-files": "file_name=$(npm pack) && tar -ztf $file_name && rm $file_name",
+    "ls-files": "file_name=$(npm pack | tail -n 1) && tar -ztf $file_name && rm $file_name",
     "test": "echo \"Error: no test specified\" && exit 1",
     "premake": "flow",
     "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types src/index.js > dist/index.js",
