@@ -8,7 +8,7 @@ declare var require: {
 
 const spawn = require('child_process').spawn
 
-interface Options {
+interface OptionalOptions {
     failOnError: ?boolean,
     failOnErrorWatch: ?boolean,
     printFlowOutput: ?boolean,
@@ -16,10 +16,17 @@ interface Options {
     flowArgs: ?Array<string>
 }
 
-function FlowWebpackPlugin(options: Options) {
+interface Options {
+    failOnError: boolean,
+    failOnErrorWatch: boolean,
+    printFlowOutput: boolean,
+    flowPath: string,
+    flowArgs: Array<string>,
+}
+
+function FlowWebpackPlugin(options: OptionalOptions) {
     options = options || {}
-    applyOptionsDefaults(options)
-    this.options = options
+    this.options = applyOptionsDefaults(options)
 }
 
 FlowWebpackPlugin.prototype.apply = function(compiler) {
@@ -86,7 +93,7 @@ function getLocalFlowPath() {
     }
 }
 
-function applyOptionsDefaults(options) {
+function applyOptionsDefaults(options: OptionalOptions): Options {
     if (!('failOnError' in options)) {
         options.failOnError = false
     }
@@ -102,6 +109,7 @@ function applyOptionsDefaults(options) {
     if (!('flowArgs' in options)) {
         options.flowArgs = []
     }
+    return (options: any)
 }
 
 module.exports = FlowWebpackPlugin
