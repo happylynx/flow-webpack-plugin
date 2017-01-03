@@ -13,7 +13,8 @@ interface OptionalOptions {
     failOnErrorWatch: ?boolean,
     printFlowOutput: ?boolean,
     flowPath: ?string,
-    flowArgs: ?Array<string>
+    flowArgs: ?Array<string>,
+    verbose: ?boolean
 }
 
 interface Options {
@@ -22,11 +23,16 @@ interface Options {
     printFlowOutput: boolean,
     flowPath: string,
     flowArgs: Array<string>,
+    verbose: boolean
 }
 
 function FlowWebpackPlugin(options: OptionalOptions) {
     options = options || {}
     this.options = applyOptionsDefaults(options)
+    if (this.options.verbose) {
+        pluginPrint('Options:')
+        Object.keys(this.options).forEach(optionName => pluginPrint(`${optionName}=${this.options[optionName]}`))
+    }
 }
 
 FlowWebpackPlugin.prototype.apply = function(compiler) {
@@ -61,15 +67,18 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
 
     function flowCheck() {
         return new Promise((resolve, reject) => {
+            log(`spawning flow`)
             const flowProcess = spawn(plugin.options.flowPath, plugin.options.flowArgs, {
                 stdio: plugin.options.printFlowOutput ? 'inherit' : 'ignore'
             })
             let resolved = false
             flowProcess.on('error', error => {
+                log('flow execution failed', error)
                 reject(error)
                 resolved = true
             })
             flowProcess.on('exit', exitCode => {
+                log('flow exited with return code ' + exitCode)
                 if (resolved) {
                     return
                 }
@@ -77,6 +86,16 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
             })
         })
     }
+
+    function log(messages) {
+        if (plugin.options.verbose) {
+            pluginPrint(messages)
+        }
+    }
+}
+
+function pluginPrint(message: string) {
+    console.log('flow-webpack-plugin: ' + message)
 }
 
 function getLocalFlowPath() {
@@ -108,6 +127,9 @@ function applyOptionsDefaults(options: OptionalOptions): Options {
     }
     if (!('flowArgs' in options)) {
         options.flowArgs = []
+    }
+    if (!('verbose' in options)) {
+        options.verbose = false
     }
     return (options: any)
 }
