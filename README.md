@@ -51,5 +51,5 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
   Path to flow executable.
 * `flowArgs: Array<string>`, default: `[]`  
   Flow command line arguments.
-* `verbose: boolean`, default: `false`
+* `verbose: boolean`, default: `false`  
   It enables plugin logging for debug purposes.
