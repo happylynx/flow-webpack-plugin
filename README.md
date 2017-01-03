@@ -28,7 +28,8 @@ module.exports = {
         //     failOnErrorWatch: false,
         //     printFlowOutput: true,
         //     flowPath: require.main.require('flow-bin'),
-        //     flowArgs: []
+        //     flowArgs: [],
+        //     verbose: false
         // }),
         // ...
     ],
@@ -50,3 +51,5 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
   Path to flow executable.
 * `flowArgs: Array<string>`, default: `[]`  
   Flow command line arguments.
+* `verbose: boolean`, default: `false`
+  It enables plugin logging for debug purposes.
