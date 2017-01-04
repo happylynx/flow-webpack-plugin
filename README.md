@@ -50,6 +50,8 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
 * `flowPath: string`, default: `require.main.require('flow-bin')`  
   Path to flow executable.
 * `flowArgs: Array<string>`, default: `[]`  
-  Flow command line arguments.
+  Flow command line arguments. See flow [cli documentation][1].
 * `verbose: boolean`, default: `false`  
   It enables plugin logging for debug purposes.
+
+[1]: https://flowtype.org/docs/cli.html
