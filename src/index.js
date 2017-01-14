@@ -74,7 +74,8 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
             })
             let resolved = false
             flowProcess.on('error', error => {
-                log('flow execution failed', error)
+                pluginPrint('flow execution failed. Please make sure that the `flowPath` option is correctly set.'
+                    , error)
                 reject(error)
                 resolved = true
             })
@@ -88,25 +89,25 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
         })
     }
 
-    function log(messages) {
+    function log(...messages) {
         if (plugin.options.verbose) {
-            pluginPrint(messages)
+            pluginPrint(...messages)
         }
     }
 }
 
-function pluginPrint(message: string) {
-    console.log('flow-webpack-plugin: ' + message)
+function pluginPrint(...messages: Array<string>) {
+    console.log('flow-webpack-plugin:', ...messages)
 }
 
-function getLocalFlowPath() {
+function getLocalFlowPath(): string {
     try {
         return require.main.require('flow-bin')
     } catch (e) {
         try {
             return require('flow-bin')
         } catch (e) {
-            const error: (Error & {cause: mixed}) = (new Error('`flow` can\'t be found. Please either install it (`npm install --save-dev flow-bin`) or set `flowPath` option.'): any)
+            const error: (Error & {cause: mixed}) = (new FlowWebpackPluginError('`flow` can\'t be found. Please either install it (`npm install --save-dev flow-bin`) or set `flowPath` option.'): any)
             error.cause = e
             throw error
         }
