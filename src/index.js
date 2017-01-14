@@ -29,6 +29,7 @@ interface Options {
 function FlowWebpackPlugin(options: OptionalOptions) {
     options = options || {}
     this.options = applyOptionsDefaults(options)
+    validateOptions(this.options)
     if (this.options.verbose) {
         pluginPrint('Options:')
         Object.keys(this.options).forEach(optionName => pluginPrint(`${optionName}=${this.options[optionName]}`))
@@ -112,6 +113,30 @@ function getLocalFlowPath() {
     }
 }
 
+function validateOptions(options: Options) {
+    validateOption(options, 'flowPath', isString, 'string')
+    validateOption(options, 'flowArgs', isArrayOfStrings, 'Array<string>')
+}
+
+function validateOption(options: Options,
+                        optionName: string,
+                        validationFunction: (mixed) => boolean,
+                        typeName: string) {
+    const value = (options: any)[optionName]
+    if (!validationFunction(value)) {
+        throw new FlowWebpackPluginError(`Option '${optionName}' is not of required type '${typeName}'. Actual value is '${value}'`)
+    }
+}
+
+function isString(object: mixed): boolean {
+    return typeof object === 'string' || object instanceof String
+}
+
+function isArrayOfStrings(object: mixed) {
+    return Array.isArray(object)
+        && object.every(item => isString(item))
+}
+
 function applyOptionsDefaults(options: OptionalOptions): Options {
     if (!('failOnError' in options)) {
         options.failOnError = false
@@ -133,5 +158,7 @@ function applyOptionsDefaults(options: OptionalOptions): Options {
     }
     return (options: any)
 }
+
+class FlowWebpackPluginError extends Error {}
 
 module.exports = FlowWebpackPlugin
