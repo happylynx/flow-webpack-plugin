@@ -104,7 +104,7 @@ function getLocalFlowPath() {
         return require.main.require('flow-bin')
     } catch (e) {
         try {
-            require('flow-bin')
+            return require('flow-bin')
         } catch (e) {
             const error: (Error & {cause: mixed}) = (new Error('`flow` can\'t be found. Please either install it (`npm install --save-dev flow-bin`) or set `flowPath` option.'): any)
             error.cause = e
