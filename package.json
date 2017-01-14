@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "ls-files": "file_name=$(npm pack | tail -n 1) && tar -ztf $file_name && rm $file_name",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --harmony node_modules/.bin/jest",
     "premake": "flow",
     "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types --pretty --out-dir dist/ src/",
     "prepublish": "npm run make"
@@ -24,6 +24,7 @@
   "license": "MIT",
   "devDependencies": {
     "flow-bin": "^0.37.4",
-    "flow-remove-types": "^1.1.2"
+    "flow-remove-types": "^1.1.2",
+    "jest-cli": "^18.1.0"
   }
 }
