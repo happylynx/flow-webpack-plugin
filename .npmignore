@@ -4,5 +4,4 @@ TODO
 .npmignore
 .editorconfig
 .flowconfig
-webpack.config.js
 test/
