@@ -5,6 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "ls-files": "file_name=$(npm pack | tail -n 1) && tar -ztf $file_name && rm $file_name",
+    "pretest": "npm run make",
     "test": "node --harmony node_modules/.bin/jest",
     "premake": "flow",
     "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types --pretty --out-dir dist/ src/",
