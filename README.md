@@ -59,7 +59,7 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
 * `verbose: boolean`, default: `false`  
   It enables plugin logging for debug purposes.
   
-## Type annotation strip
+## Type annotations strip
 
 This plugin performs type validation of the code. To remove the Flow type annotations and
 create pure Javascript code [babel-plugin-transform-flow-strip-types][3] can be used.
