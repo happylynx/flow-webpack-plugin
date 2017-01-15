@@ -1,6 +1,6 @@
 {
   "name": "flow-webpack-plugin",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Webpack plugin allowing to call `flow` type checker.",
   "main": "dist/index.js",
   "scripts": {
