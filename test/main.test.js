@@ -1,23 +1,21 @@
-const cp = require('child_process')
 
-let spawnMock = () => undefined
-cp.spawn = function() {
-    return spawnMock.apply(this, arguments)
+mockSpawn()
+
+function mockSpawn() {
+    jest.mock('child_process', () => ({
+        spawn: jest.fn()
+    }))
 }
-
-const originalLog = console.log
-let logListener = (...a) => undefined
-console.log = function (...a) {
-    logListener(...a)
-    originalLog.call(console, ...a)
-}
-
-const Plugin = require('../')
 
 describe('plugin', () => {
+
+    beforeEach(() => {
+        jest.resetModules()
+    })
+
     it('should register all callbacks', () => {
         const compilerMock = new CompilerMock();
-        new Plugin().apply(compilerMock)
+        createPlugin().apply(compilerMock)
         expect(compilerMock.callbacks.run.length).toBe(1)
         expect(compilerMock.callbacks['watch-run'].length).toBe(1)
         expect(compilerMock.callbacks.compilation.length).toBe(1)
@@ -25,27 +23,40 @@ describe('plugin', () => {
 
     it('should call run callback', () => {
         const compilerMock = new CompilerMock();
-        new Plugin().apply(compilerMock)
+        createPlugin().apply(compilerMock)
         return new Promise((resolve) => {
             compilerMock.callbacks.run[0](compilerMock, resolve)
         })
     })
 
     it('should spawn flow', () => {
-        const spawnArguments = []
-        spawnMock = function () {
-            spawnArguments.push(arguments)
-        }
-        const compilerMock = new CompilerMock();
-        new Plugin().apply(compilerMock)
-        return new Promise((resolve) => {
-            compilerMock.callbacks.run[0](compilerMock, () => {
-                resolve(expect(spawnArguments.length).toBe(1))
-            })
-        })
+        const compilerMock = new CompilerMock()
+        const spawnMock = require('child_process').spawn
+        spawnMock.mockReturnValueOnce(createChildProcess())
+        createPlugin().apply(compilerMock)
+        compilerMock._run()
+        expect(spawnMock).toBeCalled()
+
     })
 
-    it('shouldn\'t report error if flow exits successfully', () => {})
+    it('shouldn\'t report error if flow exits successfully', async () => {
+        const spawnMock = require('child_process').spawn
+        const childProcess = {
+            on: jest.fn((name, handler) => {
+                if (name === 'exit') {
+                    setTimeout(handler.bind(undefined, 0), 0)
+                }
+            })
+        }
+        spawnMock.mockReturnValueOnce(childProcess)
+        const compilerMock = new CompilerMock()
+        createPlugin().apply(compilerMock)
+        const runErrors = await compilerMock._run()
+        const compilationErrors = await compilerMock._compilation()
+        expect(runErrors).toEqual([])
+        expect(compilationErrors).toEqual([])
+    })
+
     it('shouldn\'t report error if flow exits successfully, two times', () => {})
     it('should report error if flow exits with errors', () => {})
     it('should report error if flow exits with errors, two times', () => {})
@@ -66,6 +77,16 @@ describe('plugin', () => {
     it('should use expected default for option verbose', () => {})
 })
 
+function createChildProcess() {
+    return {
+        on: jest.fn()
+    }
+}
+
+function createPlugin(...options) {
+    return new (require('..'))(...options)
+}
+
 class CompilerMock {
 
     constructor() {
@@ -80,16 +101,30 @@ class CompilerMock {
         this.callbacks[callbackName].push(callbackFunction)
     }
 
-    simulateRun() {
+    /**
+     * @return {Promise<Array<any>>} run errors
+     */
+    _run() {
         return new Promise((resolve, reject) => {
 
             this.callbacks.run[0](this, callbackFn)
 
-            function callbackFn(error) {
-                if (error) {
-                    reject(error)
-                }
+            function callbackFn(...errors) {
+                resolve(errors)
             }
+        })
+    }
+
+    /**
+     * @return {Promise<Array<any>} compilation errors
+     */
+    _compilation() {
+        return new Promise((resolve, reject) => {
+            const compilation = {
+                errors: []
+            }
+            this.callbacks.compilation[0](compilation)
+            resolve(compilation.errors)
         })
     }
 }
