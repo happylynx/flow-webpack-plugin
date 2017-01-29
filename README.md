@@ -2,6 +2,11 @@
 
 A webpack plugin allowing to call [Flow][2] type checker during each webpack compilation.
 
+[![npm](https://img.shields.io/npm/v/flow-webpack-plugin.svg)]()
+[![npm](https://img.shields.io/npm/l/flow-webpack-plugin.svg)]()
+[![npm](https://img.shields.io/npm/dm/flow-webpack-plugin.svg)]()
+[![David](https://img.shields.io/david/happylynx/flow-webpack-plugin.svg)]()
+
 ## Key features
 
 * It doesn't require `flow` to be in `$PATH`.
