@@ -32,7 +32,7 @@ describe('plugin', () => {
     it('should spawn flow', () => {
         const compilerMock = new CompilerMock()
         const spawnMock = require('child_process').spawn
-        spawnMock.mockReturnValueOnce(createChildProcess())
+        spawnMock.mockReturnValueOnce(createDummyChildProcess())
         createPlugin().apply(compilerMock)
         compilerMock._run()
         expect(spawnMock).toBeCalled()
@@ -41,14 +41,7 @@ describe('plugin', () => {
 
     it('shouldn\'t report error if flow exits successfully', async () => {
         const spawnMock = require('child_process').spawn
-        const childProcess = {
-            on: jest.fn((name, handler) => {
-                if (name === 'exit') {
-                    setTimeout(handler.bind(undefined, 0), 0)
-                }
-            })
-        }
-        spawnMock.mockReturnValueOnce(childProcess)
+        spawnMock.mockReturnValueOnce(createSuccessfulProcess())
         const compilerMock = new CompilerMock()
         createPlugin().apply(compilerMock)
         const runErrors = await compilerMock._run()
@@ -57,10 +50,61 @@ describe('plugin', () => {
         expect(compilationErrors).toEqual([])
     })
 
-    it('shouldn\'t report error if flow exits successfully, two times', () => {})
-    it('should report error if flow exits with errors', () => {})
-    it('should report error if flow exits with errors, two times', () => {})
-    it('should throw exception if flow fails to start', () => {})
+    it('shouldn\'t report error if flow exits successfully, two times', async () => {
+        const spawnMock = require('child_process').spawn
+        spawnMock.mockReturnValueOnce(createSuccessfulProcess())
+        spawnMock.mockReturnValueOnce(createSuccessfulProcess())
+        const compilerMock = new CompilerMock()
+        createPlugin().apply(compilerMock)
+        const runErrors1 = await compilerMock._run()
+        const compilationErrors1 = await compilerMock._compilation()
+        expect(runErrors1).toEqual([])
+        expect(compilationErrors1).toEqual([])
+        const runErrors2 = await compilerMock._run()
+        const compilationErrors2 = await compilerMock._compilation()
+        expect(runErrors2).toEqual([])
+        expect(compilationErrors2).toEqual([])
+    })
+
+
+    it('should report error if flow exits with errors', async () => {
+        const spawnMock = require('child_process').spawn
+        spawnMock.mockReturnValueOnce(createFailingProcess())
+        const compilerMock = new CompilerMock()
+        createPlugin().apply(compilerMock)
+        const runErrors = await compilerMock._run()
+        const compilationErrors = await compilerMock._compilation()
+        expect(runErrors).toEqual([])
+        expect(compilationErrors).toEqual([new Error('Flow validation.')])
+    })
+
+    it('should report error if flow exits with errors, two times', async () => {
+        const spawnMock = require('child_process').spawn
+        spawnMock.mockReturnValueOnce(createFailingProcess())
+        spawnMock.mockReturnValueOnce(createFailingProcess())
+        const compilerMock = new CompilerMock()
+        createPlugin().apply(compilerMock)
+        const runErrors1 = await compilerMock._run()
+        expect(runErrors1).toEqual([])
+        const compilationErrors1 = await compilerMock._compilation()
+        expect(compilationErrors1).toEqual([new Error("Flow validation.")])
+        const runErrors2 = await compilerMock._run()
+        expect(runErrors2).toEqual([])
+        const compilationErrors2 = await compilerMock._compilation()
+        expect(compilationErrors2).toEqual([new Error('Flow validation.')])
+    })
+
+    it('should throw exception if flow fails to start', async () => {
+        const spawnMock = require('child_process').spawn
+        spawnMock.mockReturnValueOnce(createProcessFailedToStart())
+        const compilerMock = new CompilerMock()
+        createPlugin().apply(compilerMock)
+        const runErrors = await compilerMock._run()
+        expect(runErrors).toEqual([])
+        const compilationErrors = await compilerMock._compilation()
+        expect(compilationErrors).toEqual(['some error'])
+    })
+
     it('should throw exception if flow fails to start, two times', () => {})
     it('should stop webpack if flow exits with errors and failOnError is set', () => {})
     it('should print arguments if verbose option is set', () => {})
@@ -77,9 +121,42 @@ describe('plugin', () => {
     it('should use expected default for option verbose', () => {})
 })
 
-function createChildProcess() {
+function createDummyChildProcess() {
     return {
         on: jest.fn()
+    }
+}
+
+function createSuccessfulProcess() {
+    return createChildProcess(
+        userCallback => setTimeout(userCallback.bind(undefined, 0), 0),
+        userCallback => undefined)
+}
+
+function createFailingProcess() {
+    return createChildProcess(
+        userCallback => setTimeout(userCallback.bind(undefined, 1), 0),
+        userCallback => undefined)
+}
+
+function createProcessFailedToStart() {
+    return createChildProcess(
+        userCallback => undefined,
+        userCallback => setTimeout(userCallback.bind(undefined, 'some error'), 0))
+}
+
+function createChildProcess(exitHandler, errorHandler) {
+    return {
+        on: jest.fn((name, userCallback) => {
+            if (name === 'exit') {
+                exitHandler(userCallback)
+                return
+            }
+            if (name === 'error') {
+                errorHandler(userCallback)
+                return
+            }
+        })
     }
 }
 
@@ -105,7 +182,7 @@ class CompilerMock {
      * @return {Promise<Array<any>>} run errors
      */
     _run() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
 
             this.callbacks.run[0](this, callbackFn)
 
@@ -119,7 +196,7 @@ class CompilerMock {
      * @return {Promise<Array<any>} compilation errors
      */
     _compilation() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const compilation = {
                 errors: []
             }
