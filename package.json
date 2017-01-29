@@ -5,11 +5,13 @@
   "main": "dist/index.js",
   "scripts": {
     "ls-files": "file_name=$(npm pack | tail -n 1) && tar -ztf $file_name && rm $file_name",
-    "pretest": "npm run make",
+    "pretest": "npm run test-lint && npm run make",
     "test": "node --harmony node_modules/.bin/jest",
-    "premake": "flow",
+    "premake": "npm run lint && flow",
     "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types --pretty --out-dir dist/ src/",
-    "prepublish": "npm run make"
+    "prepublish": "npm run make",
+    "lint": "eslint src",
+    "test-lint": "eslint test"
   },
   "keywords": [
     "webpack",
@@ -24,6 +26,9 @@
   "author": "happylynx",
   "license": "MIT",
   "devDependencies": {
+    "babel-eslint": "^7.1.1",
+    "eslint": "^3.13.1",
+    "eslint-plugin-flowtype": "^2.30.0",
     "flow-bin": "^0.37.4",
     "flow-remove-types": "^1.1.2",
     "jest-cli": "^18.1.0"

@@ -6,3 +6,4 @@ TODO
 .flowconfig
 test/
 .vscode/
+.eslintrc.json
