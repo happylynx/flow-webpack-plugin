@@ -9,7 +9,7 @@
     "test": "node --harmony node_modules/.bin/jest",
     "premake": "npm run lint && flow",
     "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types --pretty --out-dir dist/ src/",
-    "prepublish": "npm run make",
+    "prepublish": "npm run test",
     "lint": "eslint src",
     "test-lint": "eslint test"
   },
