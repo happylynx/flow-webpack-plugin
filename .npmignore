@@ -5,5 +5,6 @@ TODO
 .editorconfig
 .flowconfig
 test/
+.travis.yml
 .vscode/
 .eslintrc.json
