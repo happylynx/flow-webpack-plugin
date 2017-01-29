@@ -5,3 +5,4 @@ TODO
 .editorconfig
 .flowconfig
 test/
+.vscode/
