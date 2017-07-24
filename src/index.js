@@ -20,7 +20,8 @@ interface OptionalOptions {
     flowPath: ?string,
     flowArgs: ?Array<string>,
     verbose: ?boolean,
-    callback: ?CallbackType
+    callback: ?CallbackType,
+    afterEmit: ?boolean
 }
 
 type CallbackType = (FlowResult) => ?Promise<any>
@@ -32,7 +33,8 @@ interface Options {
     flowPath: string,
     flowArgs: Array<string>,
     verbose: boolean,
-    callback: CallbackType
+    callback: CallbackType,
+    afterEmit: boolean
 }
 
 type CompleteFlowResult = {
@@ -69,6 +71,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
 
     const runCallback = failOnError =>
         (compiler, webpackCallback) => {
+            webpackCallback = webpackCallback || function(){}
             flowCheck()
                 .then(result => {
                     flowResult = result
@@ -102,13 +105,17 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
         callback()
     })
 
+    if(plugin.options.afterEmit) {
+        compiler.plugin('after-emit', runCallback(false))
+    }else{
     /*
      * callbacks chosen because it is required
      * * to be done before or at time of 'compilation callback' - to avoid expensive compilation when type error present
      * * hook needs to be asynchronous
      */
-    compiler.plugin('run', runCallback(plugin.options.failOnError))
-    compiler.plugin('watch-run', runCallback(plugin.options.failOnErrorWatch))
+        compiler.plugin('run', runCallback(plugin.options.failOnError))
+        compiler.plugin('watch-run', runCallback(plugin.options.failOnErrorWatch))
+    }
 
     function callUserCallback(webpackCallback: (?mixed) => void) {
         let userCallbackResult
@@ -190,8 +197,8 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
                     exitCode,
                     stdout,
                     stderr
-                })
             })
+        })
         })
     }
 
@@ -272,7 +279,7 @@ function applyOptionsDefaults(optionalOptions: OptionalOptions): Options {
         callback: NOOP
     }
     return (Object.assign({}, defaultOptions, optionalOptions): any)
-}
+    }
 
 class FlowWebpackPluginError extends Error {}
 
