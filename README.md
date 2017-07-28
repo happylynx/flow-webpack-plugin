@@ -70,6 +70,11 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
   Flow command line arguments. See [flow cli documentation][1].
 * `verbose: boolean`, default: `false`  
   It enables plugin logging for debug purposes.
+
+| option | type | default value | description |
+| --- | --- | --- | --- |
+| `failOnError` | `boolean` | `false` | Webpack exits with non-zero error code if flow typechecking fails. |
+| `failOnErrorWatch` | `boolean` | `false` | Webpack in watch mode exits with non-zero error code if flow typechecking fails. |
   
 ## Type annotations strip
 
