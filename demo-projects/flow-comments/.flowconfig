@@ -1,8 +1,9 @@
 [ignore]
-.*/demo-projects/.*
 
 [include]
 
 [libs]
 
 [options]
+
+[lints]
