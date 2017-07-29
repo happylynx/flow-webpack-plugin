@@ -56,20 +56,14 @@ module.exports = {
 
 Constructor of `FlowWebpackPlugin` accepts optional configuration object of following properties:
 
-* `failOnError: boolean`, default: `false`  
-  Webpack exits with non-zero error code if flow typechecking fails.
-* `failOnErrorWatch: boolean`, default: `false`  
-  Webpack in watch mode exits with non-zero error code if flow typechecking fails.
-* `printFlowOutput: boolean`, default: `true`  
-  `true` ~ Output of `flow` is redirected to stdout/stderr of webpack, `false` output of `flow` is discarded.
-* `flowPath: string`, default: `require('flow-bin')` if `flow-bin` package is installed. Otherwise the parameter
-   is required.  
-  Path to flow executable. It may be both absolute, relative to the 'cwd' of webpack process or just name
-  of an executable on the PATH.
-* `flowArgs: Array<string>`, default: `[]`  
-  Flow command line arguments. See [flow cli documentation][1].
-* `verbose: boolean`, default: `false`  
-  It enables plugin logging for debug purposes.
+| option | type | default value | description |
+| --- | --- | --- | --- |
+| `failOnError` | `boolean` | `false` | Webpack exits with non-zero error code if flow typechecking fails. |
+| `failOnErrorWatch` | `boolean` | `false` | Webpack in watch mode exits with non-zero error code if flow typechecking fails. |
+| `printFlowOutput` | `boolean` | `true` | `true` ~ Output of `flow` is redirected to stdout/stderr of webpack, `false` output of `flow` is discarded. |
+| `flowPath` | `string` | `require('flow-bin')` if `flow-bin` package is installed. Otherwise the parameter is required. | Path to flow executable. It may be both absolute, relative to the 'cwd' of webpack process or just name of an executable on the PATH.
+| `flowArgs` | `Array<string>` | `[]` | Flow command line arguments. See [flow cli documentation][1]. |
+| `verbose` | `boolean` | `false` | It enables plugin logging for debug purposes. |
   
 ## Type annotations strip
 
