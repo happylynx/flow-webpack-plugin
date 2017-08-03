@@ -17,8 +17,7 @@ A webpack plugin allowing to call [Flow][2] type checker during each webpack com
 ## Installation
 
 ```
-npm install --save-dev flow-webpack-plugin
-npm install --save-dev flow-bin
+npm install --save-dev flow-webpack-plugin flow-bin
 ```
 
 or using yarn:
@@ -51,6 +50,9 @@ module.exports = {
     // ...
 }
 ```
+
+*Note:* `flow-bin` package is not a hard dependency. If flow is already installed on your system,
+it can be reused through `flowPath` option.
 
 ## Configuration
 
