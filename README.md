@@ -73,10 +73,10 @@ create pure Javascript code [babel-plugin-transform-flow-strip-types][3] can be 
 ## Screenshots
 
 Valid codebase:  
-![Valid codebase](doc/valid.png)
+![Valid codebase](doc/flow-webpack-plugin-valid.png)
 
 Flow validation error:  
-![Flow validation error](doc/fail.png)
+![Flow validation error](doc/flow-webpack-plugin-invalid.png)
 
 
 [1]: https://flowtype.org/docs/cli.html
