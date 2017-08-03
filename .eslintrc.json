@@ -57,7 +57,7 @@
             "never"
         ],
         "flowtype/type-id-match": [
-            2,
+            0,
             "^([A-Z][a-z0-9]+)+Type$"
         ],
         "flowtype/union-intersection-spacing": [
