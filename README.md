@@ -34,18 +34,6 @@ const FlowWebpackPlugin = require('flow-webpack-plugin')
 module.exports = {
     plugins: [
         new FlowWebpackPlugin(),
-        //
-        // or with configuration:
-        //  
-        // new FlowWebpackPlugin({
-        //     failOnError: false,
-        //     failOnErrorWatch: false,
-        //     printFlowOutput: true,
-        //     flowPath: require.main.require('flow-bin'),
-        //     flowArgs: ['--color'],
-        //     verbose: false,
-        //     callback: (result) => {}
-        // }),
         // ...
     ],
     // ...
@@ -55,9 +43,31 @@ module.exports = {
 *Note:* `flow-bin` package is not a hard dependency. If flow is already installed on your system,
 it can be reused through `flowPath` option.
 
+## Screenshots
+
+Valid codebase:  
+![Valid codebase](doc/flow-webpack-plugin-valid.png)
+
+Flow validation error:  
+![Flow validation error](doc/flow-webpack-plugin-invalid.png)
+
 ## Configuration
 
 Constructor of `FlowWebpackPlugin` accepts optional configuration object of following properties:
+
+```js
+const FlowWebpackPlugin = require('flow-webpack-plugin')
+
+new FlowWebpackPlugin({
+    failOnError: false,
+    failOnErrorWatch: false,
+    printFlowOutput: true,
+    flowPath: require.main.require('flow-bin'),
+    flowArgs: ['--color'],
+    verbose: false,
+    callback: (result) => {}
+})
+```
 
 | option | type | default value | description |
 | --- | --- | --- | --- |
@@ -73,15 +83,6 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
 
 This plugin performs type validation of the code. To remove the Flow type annotations and
 create pure Javascript code [babel-plugin-transform-flow-strip-types][3] can be used.
-
-## Screenshots
-
-Valid codebase:  
-![Valid codebase](doc/flow-webpack-plugin-valid.png)
-
-Flow validation error:  
-![Flow validation error](doc/flow-webpack-plugin-invalid.png)
-
 
 [1]: https://flowtype.org/docs/cli.html
 [2]: https://flowtype.org
