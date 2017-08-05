@@ -110,18 +110,24 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
     function callUserCallback(webpackCallback: (?mixed) => void) {
         let userCallbackResult
         try {
+            log('About to call user callback.')
             userCallbackResult = plugin.options.callback(flowResult)
         } catch (userCallbackException) {
-            console.warn(PLUGIN_PREFIX, 'Callback failed throwing:', userCallbackException)
+            console.warn(PLUGIN_PREFIX, 'User callback failed throwing:', userCallbackException)
             afterUserCallback(webpackCallback)
             return
         }
         if (!(userCallbackResult instanceof Promise)) {
+            log('User callback synchronously ended.')
             afterUserCallback(webpackCallback)
             return
         }
+        log('User callback returned a promise. Waiting for it.')
         userCallbackResult.then(
-            () => afterUserCallback(webpackCallback),
+            () => {
+                log('User callback promise resolved.')
+                afterUserCallback(webpackCallback)
+            },
             (userCallbackException) => {
                 console.warn(PLUGIN_PREFIX, 'Callback failed throwing:', userCallbackException)
                 afterUserCallback(webpackCallback)
