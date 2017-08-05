@@ -5,12 +5,12 @@
   "main": "dist/index.js",
   "scripts": {
     "ls-files": "file_name=$(npm pack | tail -n 1) && tar -ztf $file_name && rm $file_name",
-    "pretest": "npm run test-lint && npm run make",
+    "pretest": "npm run test-lint && npm run build",
     "test": "node --harmony node_modules/.bin/jest",
-    "premake": "npm run lint && flow",
-    "make": "mkdir -p dist && rm -rf dist/* && flow-remove-types --pretty --out-dir dist/ src/",
+    "prebuild": "npm run lint && flow",
+    "build": "mkdir -p dist && rm -rf dist/* && flow-remove-types --pretty --out-dir dist/ src/",
     "prepublishOnly": "npm run test",
-    "prepack": "npm run make",
+    "prepack": "npm run build",
     "lint": "eslint src",
     "test-lint": "eslint test"
   },
