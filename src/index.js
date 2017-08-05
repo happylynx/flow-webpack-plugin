@@ -8,6 +8,8 @@ declare var require: {
 
 const EOL = require('os').EOL
 const spawn = require('child_process').spawn
+const process = require('process')
+
 const PLUGIN_PREFIX = '[flow-webpack-plugin]'
 const NOOP = (_) => {}
 
@@ -244,13 +246,19 @@ function isArrayOfStrings(object: mixed) {
         && object.every(item => isString(item))
 }
 
+function getDefaultFlowArgs(): Array<string> {
+    return process.stdout.isTTY
+        ? ['--color=always']
+        : []
+}
+
 function applyOptionsDefaults(optionalOptions: OptionalOptions): Options {
     const defaultOptions: Options = {
         failOnError: false,
         failOnErrorWatch: false,
         printFlowOutput: true,
         flowPath: getLocalFlowPath(),
-        flowArgs: ['--color=always'],
+        flowArgs: getDefaultFlowArgs(),
         verbose: false,
         callback: NOOP
     }
