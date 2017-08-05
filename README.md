@@ -43,7 +43,8 @@ module.exports = {
         //     printFlowOutput: true,
         //     flowPath: require.main.require('flow-bin'),
         //     flowArgs: ['--color'],
-        //     verbose: false
+        //     verbose: false,
+        //     callback: (result) => {}
         // }),
         // ...
     ],
@@ -66,6 +67,7 @@ Constructor of `FlowWebpackPlugin` accepts optional configuration object of foll
 | `flowPath` | `string` | `require('flow-bin')` if `flow-bin` package is installed. Otherwise the parameter is required. | Path to flow executable. It may be both absolute, relative to the 'cwd' of webpack process or just name of an executable on the PATH.
 | `flowArgs` | `Array<string>` | `['--color']` | Flow command line arguments. See [flow cli documentation][1]. |
 | `verbose` | `boolean` | `false` | It enables plugin logging for debug purposes. |
+| `callback` | `({exitCode: number, stdout: string, stderr: string}) => ?Promise<any>` | (result) => {} | Custom user function that is called when Flow check finishes and is passed Flow type check result. If function returns a promise, it is called asynchronously. |
   
 ## Type annotations strip
 

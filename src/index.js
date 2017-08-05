@@ -8,6 +8,8 @@ declare var require: {
 
 const EOL = require('os').EOL
 const spawn = require('child_process').spawn
+const PLUGIN_PREFIX = '[flow-webpack-plugin]'
+const NOOP = (_) => {}
 
 interface OptionalOptions {
     failOnError: ?boolean,
@@ -15,8 +17,11 @@ interface OptionalOptions {
     printFlowOutput: ?boolean,
     flowPath: ?string,
     flowArgs: ?Array<string>,
-    verbose: ?boolean
+    verbose: ?boolean,
+    callback: ?CallbackType
 }
+
+type CallbackType = (FlowResult) => ?Promise<any>
 
 interface Options {
     failOnError: boolean,
@@ -24,11 +29,16 @@ interface Options {
     printFlowOutput: boolean,
     flowPath: string,
     flowArgs: Array<string>,
-    verbose: boolean
+    verbose: boolean,
+    callback: CallbackType
 }
 
-type CheckResult = {
-    successful: boolean,
+type CompleteFlowResult = {
+    successful: boolean
+} & FlowResult
+
+type FlowResult = {
+    exitCode: number,
     stdout: string,
     stderr: string
 }
@@ -52,29 +62,19 @@ function prefixLines(prefix: string, lines: string): string {
 FlowWebpackPlugin.prototype.apply = function(compiler) {
     const plugin = this
 
-    let flowResult: CheckResult
+    let flowResult: CompleteFlowResult
     let flowExecutionError: any = undefined;
 
     const runCallback = failOnError =>
-        (compiler, callback) => {
+        (compiler, webpackCallback) => {
             flowCheck()
                 .then(result => {
-                    if (!result.successful && failOnError) {
-                        const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(result)) : ''
-
-                        /*
-                         * argument passed to callback() causes webpack to immediately stop, even in watch mode,
-                         * don't emit assets, and set return code to 1
-                         */
-                        callback('Flow validation failed.' + details)
-                        return
-                    }
                     flowResult = result
-                    callback()
+                    callUserCallback(webpackCallback)
                 })
                 .catch(error => {
                     flowExecutionError = error
-                    failOnError ? callback('Flow execution failed. ' + error) : callback()
+                    failOnError ? webpackCallback('Flow execution failed. ' + error) : webpackCallback()
                 })
         }
 
@@ -105,7 +105,43 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
     compiler.plugin('run', runCallback(plugin.options.failOnError))
     compiler.plugin('watch-run', runCallback(plugin.options.failOnErrorWatch))
 
-    function formatFlowOutput(result: CheckResult): string {
+    function callUserCallback(webpackCallback: (?mixed) => void) {
+        let userCallbackResult
+        try {
+            userCallbackResult = plugin.options.callback(flowResult)
+        } catch (userCallbackException) {
+            console.warn(PLUGIN_PREFIX, 'Callback failed throwing:', userCallbackException)
+            afterUserCallback(webpackCallback)
+            return
+        }
+        if (!(userCallbackResult instanceof Promise)) {
+            afterUserCallback(webpackCallback)
+            return
+        }
+        userCallbackResult.then(
+            () => afterUserCallback(webpackCallback),
+            (userCallbackException) => {
+                console.warn(PLUGIN_PREFIX, 'Callback failed throwing:', userCallbackException)
+                afterUserCallback(webpackCallback)
+            }
+        )
+    }
+
+    function afterUserCallback(webpackCallback: (?mixed) => void) {
+        if (!flowResult.successful && plugin.options.failOnError) {
+            const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(flowResult)) : ''
+
+            /*
+             * argument passed to callback() causes webpack to immediately stop, even in watch mode,
+             * don't emit assets, and set return code to 1
+             */
+            webpackCallback('Flow validation failed.' + details)
+            return
+        }
+        webpackCallback()
+    }
+
+    function formatFlowOutput(result: CompleteFlowResult): string {
         return prefixIfVerbose('flow stdout', result.stdout)
             + prefixIfVerbose('flow stderr', result.stderr)
     }
@@ -114,7 +150,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
         return plugin.options.verbose ? prefixLines(prefix, lines) : lines
     }
 
-    function flowCheck(): Promise<CheckResult> {
+    function flowCheck(): Promise<CompleteFlowResult> {
         return new Promise((resolve, reject) => {
             log(`spawning flow`)
             const flowProcess = spawn(plugin.options.flowPath, plugin.options.flowArgs, {
@@ -137,7 +173,10 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
                     return
                 }
                 resolve({
-                    successful: exitCode === 0,
+                    get successful() {
+                        return this.exitCode === 0
+                    },
+                    exitCode,
                     stdout,
                     stderr
                 })
@@ -146,7 +185,9 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
     }
 
     function getStdioOptions(): string {
-        return plugin.options.printFlowOutput ? 'pipe' : 'ignore'
+        return (plugin.options.printFlowOutput || plugin.options.callback === NOOP)
+            ? 'pipe'
+            : 'ignore'
     }
 
     function log(...messages) {
@@ -157,7 +198,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
 }
 
 function pluginPrint(...messages: Array<string>) {
-    console.log('flow-webpack-plugin:', ...messages)
+    console.log(PLUGIN_PREFIX, ...messages)
 }
 
 function getLocalFlowPath(): string {
@@ -177,6 +218,11 @@ function getLocalFlowPath(): string {
 function validateOptions(options: Options) {
     validateOption(options, 'flowPath', isString, 'string')
     validateOption(options, 'flowArgs', isArrayOfStrings, 'Array<string>')
+    validateOption(options, 'callback', isFunction, '({successful: boolean, stdout: string, stderr: string}) => void')
+}
+
+function isFunction(object: mixed) {
+    return typeof object === 'function'
 }
 
 function validateOption(options: Options,
@@ -205,7 +251,8 @@ function applyOptionsDefaults(optionalOptions: OptionalOptions): Options {
         printFlowOutput: true,
         flowPath: getLocalFlowPath(),
         flowArgs: ['--color=always'],
-        verbose: false
+        verbose: false,
+        callback: NOOP
     }
     return (Object.assign({}, defaultOptions, optionalOptions): any)
 }
