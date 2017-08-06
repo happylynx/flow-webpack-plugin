@@ -80,7 +80,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
                 })
         }
 
-    compiler.plugin('compilation', compilation => {
+    compiler.plugin('after-emit', (compilation, callback) => {
         if (flowExecutionError) {
             /*
              * Passed object will be printed at the end of the compilation in red
@@ -88,15 +88,18 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
              * return code will still 0.
              */
             compilation.errors.push('Flow execution: ' + flowExecutionError)
+            callback()
             return
         }
 
         if (flowResult.successful) {
+            callback()
             return
         }
 
         const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(flowResult)) : ''
         compilation.errors.push('Flow validation' + details)
+        callback()
     })
 
     /*
