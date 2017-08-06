@@ -16,6 +16,8 @@ A webpack plugin allowing to call [Flow][2] type checker during each webpack com
 
 ## Installation
 
+Run in you project directory:
+
 ```
 npm install --save-dev flow-webpack-plugin flow-bin
 ```
@@ -26,7 +28,7 @@ or using yarn:
 yarn add flow-webpack-plugin flow-bin --dev
 ```
 
-Webpack configuration file:
+Add to your webpack configuration file `webpack.config.js`:
 
 ```js
 const FlowWebpackPlugin = require('flow-webpack-plugin')
