@@ -28,6 +28,7 @@ type CallbackType = (FlowResult) => ?Promise<any>
 interface Options {
     failOnError: boolean,
     failOnErrorWatch: boolean,
+    warn: boolean,
     printFlowOutput: boolean,
     flowPath: string,
     flowArgs: Array<string>,
@@ -98,7 +99,8 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
         }
 
         const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(flowResult)) : ''
-        compilation.errors.push('Flow validation' + details)
+        const errorsOrWarnings = plugin.options.warn ? 'warnings' : 'errors'
+        compilation[errorsOrWarnings].push('Flow validation' + details)
         callback()
     })
 

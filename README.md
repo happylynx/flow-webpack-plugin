@@ -63,6 +63,7 @@ const FlowWebpackPlugin = require('flow-webpack-plugin')
 new FlowWebpackPlugin({
     failOnError: false,
     failOnErrorWatch: false,
+    warn: false,
     printFlowOutput: true,
     flowPath: require.main.require('flow-bin'),
     flowArgs: ['--color=always'],
@@ -75,6 +76,7 @@ new FlowWebpackPlugin({
 | --- | --- | --- | --- |
 | `failOnError` | `boolean` | `false` | Webpack exits with non-zero error code if flow typechecking fails. |
 | `failOnErrorWatch` | `boolean` | `false` | Webpack in watch mode exits with non-zero error code if flow typechecking fails. |
+| `warn` | `boolean` | `false` | Output warning instead of error if flow typechecking fails. |
 | `printFlowOutput` | `boolean` | `true` | `true` ~ Output of `flow` is printed at the end of webpack compilation in case of error, `false` ~ output of `flow` is discarded. |
 | `flowPath` | `string` | `require('flow-bin')` if `flow-bin` package is installed. Otherwise the parameter is required. | Path to flow executable. It may be both absolute, relative to the 'cwd' of webpack process or just name of an executable on the PATH.
 | `flowArgs` | `Array<string>` | `['--color=always']` if standard output is directed to a terminal, otherwise `[]` | Flow command line arguments. See [flow cli documentation][1]. |
