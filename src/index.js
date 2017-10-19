@@ -13,9 +13,18 @@ const process = require('process')
 const PLUGIN_PREFIX = '[flow-webpack-plugin]'
 const NOOP = (_) => {}
 
+/** option value => webpack collection name */
+const REPORTING_SEVERITY = {
+    warning: 'warnings',
+    error: 'errors'
+}
+
+type ReportingSeverity = $Keys<typeof REPORTING_SEVERITY>
+
 interface OptionalOptions {
     failOnError: ?boolean,
     failOnErrorWatch: ?boolean,
+    reportingSeverity: ?ReportingSeverity,
     printFlowOutput: ?boolean,
     flowPath: ?string,
     flowArgs: ?Array<string>,
@@ -23,12 +32,16 @@ interface OptionalOptions {
     callback: ?CallbackType
 }
 
+interface Compiler {
+    plugin: (string, (compilation: any, callback: (error: ?mixed) => void) => void) => void
+}
+
 type CallbackType = (FlowResult) => ?Promise<any>
 
 interface Options {
     failOnError: boolean,
     failOnErrorWatch: boolean,
-    warn: boolean,
+    reportingSeverity: ReportingSeverity,
     printFlowOutput: boolean,
     flowPath: string,
     flowArgs: Array<string>,
@@ -62,7 +75,7 @@ function prefixLines(prefix: string, lines: string): string {
         .join(EOL) + EOL
 }
 
-FlowWebpackPlugin.prototype.apply = function(compiler) {
+FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
     const plugin = this
 
     let flowResult: CompleteFlowResult
@@ -82,13 +95,14 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
         }
 
     compiler.plugin('after-emit', (compilation, callback) => {
+        const reportingCollectionName = REPORTING_SEVERITY[plugin.options.reportingSeverity]
         if (flowExecutionError) {
             /*
              * Passed object will be printed at the end of the compilation in red
              * (unless specified otherwise), webpack still emits assets,
              * return code will still 0.
              */
-            compilation.errors.push('Flow execution: ' + flowExecutionError)
+            compilation[reportingCollectionName].push('Flow execution: ' + flowExecutionError)
             callback()
             return
         }
@@ -99,8 +113,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
         }
 
         const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(flowResult)) : ''
-        const errorsOrWarnings = plugin.options.warn ? 'warnings' : 'errors'
-        compilation[errorsOrWarnings].push('Flow validation' + details)
+        compilation[reportingCollectionName].push('Flow validation' + details)
         callback()
     })
 
@@ -203,14 +216,14 @@ FlowWebpackPlugin.prototype.apply = function(compiler) {
             : 'ignore'
     }
 
-    function log(...messages) {
+    function log(...messages: Array<mixed>) {
         if (plugin.options.verbose) {
             pluginPrint(...messages)
         }
     }
 }
 
-function pluginPrint(...messages: Array<string>) {
+function pluginPrint(...messages: Array<mixed>) {
     console.log(PLUGIN_PREFIX, ...messages)
 }
 
@@ -229,9 +242,15 @@ function getLocalFlowPath(): string {
 }
 
 function validateOptions(options: Options) {
+    const reportingSeverityTypeName = Object.keys(REPORTING_SEVERITY).map(item => `'${item}'`).join(' | ');
+    validateOption(options, 'reportingSeverity', isEnum(Object.keys(REPORTING_SEVERITY)), reportingSeverityTypeName)
     validateOption(options, 'flowPath', isString, 'string')
     validateOption(options, 'flowArgs', isArrayOfStrings, 'Array<string>')
     validateOption(options, 'callback', isFunction, '({successful: boolean, stdout: string, stderr: string}) => void')
+}
+
+function isEnum(items: Array<string>) {
+    return object => (items: Array<any>).includes(object)
 }
 
 function isFunction(object: mixed) {
@@ -267,6 +286,7 @@ function applyOptionsDefaults(optionalOptions: OptionalOptions): Options {
     const defaultOptions: Options = {
         failOnError: false,
         failOnErrorWatch: false,
+        reportingSeverity: 'error',
         printFlowOutput: true,
         flowPath: getLocalFlowPath(),
         flowArgs: getDefaultFlowArgs(),
