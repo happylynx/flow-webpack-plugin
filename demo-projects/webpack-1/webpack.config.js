@@ -16,10 +16,7 @@ module.exports = {
     module: {
         loaders: [{
             test: /.jsx?$/,
-            include: [
-                path.resolve('src')
-            ],
-            loader: "babel-loader"
+            loader: 'babel-loader'
         }]
     }
 }
