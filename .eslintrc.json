@@ -25,10 +25,9 @@
             "comma"
         ],
         "flowtype/require-parameter-type": [
-            1,
-            "always",
+            2,
             {
-                "excludeArrowFunctions": "expressionsOnly"
+                "excludeArrowFunctions": true
             }
         ],
         "flowtype/require-return-type": [
