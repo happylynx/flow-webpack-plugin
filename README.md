@@ -63,7 +63,7 @@ const FlowWebpackPlugin = require('flow-webpack-plugin')
 new FlowWebpackPlugin({
     failOnError: false,
     failOnErrorWatch: false,
-    warn: false,
+    reportingSeverity: 'error',
     printFlowOutput: true,
     flowPath: require.main.require('flow-bin'),
     flowArgs: ['--color=always'],
