@@ -1,8 +1,7 @@
 const path = require('path')
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-
-const FlowWebpackPlugin = require('../..')
+const FlowWebpackPlugin = require('flow-webpack-plugin')
 
 
 module.exports = {

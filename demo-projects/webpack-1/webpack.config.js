@@ -1,4 +1,4 @@
-const FlowWebpackPlugin = require('../..')
+const FlowWebpackPlugin = require('flow-webpack-plugin')
 
 module.exports = {
     entry: {
