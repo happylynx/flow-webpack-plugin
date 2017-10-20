@@ -45,6 +45,8 @@ module.exports = {
 *Note:* `flow-bin` package is not a hard dependency. If flow is already installed on your system,
 it can be reused through `flowPath` option.
 
+[Demo project][4] illustrates integration of Webpack, Flow and Babel using this plugin.
+
 ## Screenshots
 
 Valid codebase:  
@@ -91,3 +93,4 @@ create pure Javascript code [babel-plugin-transform-flow-strip-types][3] can be 
 [1]: https://flowtype.org/docs/cli.html
 [2]: https://flowtype.org
 [3]: https://www.npmjs.com/package/babel-plugin-transform-flow-strip-types
+[4]: demo-projects/webpack-3
