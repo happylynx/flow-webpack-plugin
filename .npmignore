@@ -9,4 +9,5 @@ test/
 .vscode/
 .eslintrc.json
 /demo-projects/
+*.tgz
 .babelrc
