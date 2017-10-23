@@ -13,8 +13,11 @@
             {
                 "args": "none"
             }
-        ]
+        ],
+        "no-console": "off"
     },
     "globals": {
+        "Iterable": false,
+        "Generator": false
     }
 }

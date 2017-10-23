@@ -27,11 +27,18 @@
   "author": "happylynx",
   "license": "MIT",
   "devDependencies": {
-    "babel-eslint": "^7.1.1",
-    "eslint": "^3.13.1",
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.3",
+    "babel-preset-env": "^1.6.0",
+    "babel-preset-flow": "^6.23.0",
+    "eslint": "^3.19.0",
     "eslint-plugin-flowtype": "^2.39.1",
     "flow-bin": "^0.37.4",
-    "flow-remove-types": "^1.1.2",
-    "jest-cli": "^18.1.0"
+    "flow-remove-types": "^1.2.1",
+    "jest": "^21.0.0",
+    "jest-cli": "^21.0.0"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0"
   }
 }
