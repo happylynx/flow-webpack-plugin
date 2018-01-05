@@ -79,10 +79,15 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
     const plugin = this
 
     let flowResult: CompleteFlowResult
-    let flowExecutionError: any = undefined;
+    let flowExecutionError: any = undefined
+    let inWatchMode: boolean = false
 
-    const runCallback = failOnError =>
-        (compiler, webpackCallback) => {
+    const runCallback = watchMode => {
+        inWatchMode = watchMode
+        let failOnError = inWatchMode ?
+            plugin.options.failOnErrorWatch :
+            plugin.options.failOnError
+        return (compiler, webpackCallback) => {
             flowCheck()
                 .then(result => {
                     flowResult = result
@@ -93,6 +98,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
                     failOnError ? webpackCallback('Flow execution failed. ' + error) : webpackCallback()
                 })
         }
+    }
 
     compiler.plugin('after-emit', (compilation, callback) => {
         const reportingCollectionName = REPORTING_SEVERITY[plugin.options.reportingSeverity]
@@ -122,8 +128,8 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
      * * to be done before or at time of 'compilation callback' - to avoid expensive compilation when type error present
      * * hook needs to be asynchronous
      */
-    compiler.plugin('run', runCallback(plugin.options.failOnError))
-    compiler.plugin('watch-run', runCallback(plugin.options.failOnErrorWatch))
+    compiler.plugin('run', runCallback(false))
+    compiler.plugin('watch-run', runCallback(true))
 
     function callUserCallback(webpackCallback: (?mixed) => void) {
         let userCallbackResult
@@ -154,7 +160,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
     }
 
     function afterUserCallback(webpackCallback: (?mixed) => void) {
-        if (!flowResult.successful && plugin.options.failOnError) {
+        if (!flowResult.successful && plugin.options.failOnError && !inWatchMode) {
             const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(flowResult)) : ''
 
             /*
