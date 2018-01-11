@@ -278,8 +278,8 @@ function isArrayOfStrings(object: mixed) {
 
 function getDefaultFlowArgs(): Array<string> {
     return process.stdout.isTTY
-        ? ['--color=always']
-        : []
+        ? ['--color=always', '--quiet']
+        : ['--quiet']
 }
 
 function applyOptionsDefaults(optionalOptions: OptionalOptions): Options {
