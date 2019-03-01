@@ -33,7 +33,11 @@ interface OptionalOptions {
 }
 
 interface Compiler {
-    plugin: (string, (compilation: any, callback: (error: ?mixed) => void) => void) => void
+    hooks: {
+        run: () => {},
+        watchRun: () => {},
+        afterEmit: () => {}
+    }
 }
 
 type CallbackType = (FlowResult) => ?Promise<any>
@@ -94,7 +98,7 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
                 })
         }
 
-    compiler.plugin('after-emit', (compilation, callback) => {
+    compiler.hooks.afterEmit.tap('FlowWebpackPlugin', compilation => {
         const reportingCollectionName = REPORTING_SEVERITY[plugin.options.reportingSeverity]
         if (flowExecutionError) {
             /*
@@ -103,18 +107,18 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
              * return code will still 0.
              */
             compilation[reportingCollectionName].push('Flow execution: ' + flowExecutionError)
-            callback()
+            // callback()
             return
         }
 
         if (flowResult.successful) {
-            callback()
+            // callback()
             return
         }
 
         const details = plugin.options.printFlowOutput ? (EOL + formatFlowOutput(flowResult)) : ''
         compilation[reportingCollectionName].push('Flow validation' + details)
-        callback()
+        // callback()
     })
 
     /*
@@ -122,8 +126,8 @@ FlowWebpackPlugin.prototype.apply = function(compiler: Compiler) {
      * * to be done before or at time of 'compilation callback' - to avoid expensive compilation when type error present
      * * hook needs to be asynchronous
      */
-    compiler.plugin('run', runCallback(plugin.options.failOnError))
-    compiler.plugin('watch-run', runCallback(plugin.options.failOnErrorWatch))
+    compiler.hooks.run.tapAsync('FlowWebpackPlugin', runCallback(plugin.options.failOnError))
+    compiler.hooks.watchRun.tapAsync('FlowWebpackPlugin', runCallback(plugin.options.failOnErrorWatch))
 
     function callUserCallback(webpackCallback: (?mixed) => void) {
         let userCallbackResult
